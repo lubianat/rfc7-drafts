@@ -11,7 +11,7 @@ Other possible additions:
 * X - semantic tagging for channels (ontology terms) 
 * X - handle current `omero.channels` as a fallback default rendering 
 * X - channel grouping (m:n) via tags
-
+* X - handling unbound axis (implicit channel=1)
 ## A - string identifiers for channels
 
 allow `getChannelByName("x")` unambiguously for a single N-D array
