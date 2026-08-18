@@ -7,8 +7,8 @@ Core:
 
 Other possible additions:
 
-* X - allow for a canonical RGB-in-3-channels representation
-* X - semantic tagging for channels (ontology terms) 
+* C - canonical RGB-in-3-channels representation
+* X - tags for channels (slugs or ontology terms) 
 * X - handle current `omero.channels` as a fallback default rendering 
 * X - channel grouping (m:n) via tags
 * X - handling unbound axis (implicit channel=1)
@@ -107,5 +107,76 @@ where
 ```
 </details>
 
+## C - Photometry / RGB processing 
 
+allows for a canonical way of converting RGB images to OME-Zarr
 
+allows for the RGB channels to co-exist with other (e.g. fluorescence) channels in the same N-D array
+
+max of 1 (R, G, B) 3-channel group per N-D image
+
+### C1 - An explicit "rgb" key + value "R", "G" or "B" 
+exactly 3 channels with rgb = oneOf("R", "G", "B")
+
+```json
+{ "ome": 
+      { "multiscales": [...], 
+        "channels": [
+             { "id" : "channel-0",
+                "rgb": "R"
+             },
+             { "id" : "channel-1",
+                "rgb": "G"
+              },
+             { "id" : "channel-2",
+                "rgb": "B"
+              },
+            ]
+       }
+}
+```
+
+### C2 - Reserved ids for RGB
+
+0 or exactly 3 channels with id=oneOf(R,G,B) 
+
+```json
+{ "ome": 
+      { "multiscales": [...], 
+        "channels": [
+             { "id" : "R",
+             },
+             { "id" : "G"
+              },
+             { "id" : "B",
+              },
+            ]
+       }
+}
+```
+
+### C3 - Piggy-back on a `color` key + is_rgb = true
+
+0 or exactly 3 channels with is_rgb = true
+if present, colors MUST be encoding R=FF0000, G=00FF00, B=0000FF
+
+```json
+{ "ome": 
+      { "multiscales": [...], 
+        "channels": [
+             { "id" : "channel-0",
+                "is_rgb" : "true",
+                "color": "#FF0000"
+             },
+             { "id" : "channel-1",
+                "is_rgb" : "true",
+                "rgb": "#00FF00"
+              },
+             { "id" : "channel-2",
+                "is_rgb" : "true",
+                "rgb": ""#0000FF"
+              },
+            ]
+       }
+}
+```
