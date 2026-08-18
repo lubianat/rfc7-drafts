@@ -1,4 +1,9 @@
-I'll use [0.5](https://ngff.openmicroscopy.org/0.5/) as the base, but it can be rebased
+Goals: 
+
+* Experiment with designs for the key parts of RFC 7
+* Blueprint for Architectural Decision Records
+
+This uses [0.5](https://ngff.openmicroscopy.org/0.5/) as the base, but it can be rebased
 
 Core: 
 
@@ -8,7 +13,8 @@ Core:
 Other possible additions:
 
 * C - canonical RGB-in-3-channels representation
-* D - tags for channels (slugs or ontology terms) 
+* D - tags for channels (slugs or ontology terms)
+* E - free-text descriptions 
 * X - handle current `omero.channels` as a fallback default rendering 
 * X - channel grouping (m:n) via tags
 * X - handling unbound axis (implicit channel=1)
@@ -229,5 +235,50 @@ labels SHOULD be the canonical label for the term
 ```
 </details>
 
+## E - Free-text descriptions for channels 
+
+allow humans and language models to use expressive natural language information 
+
+<details>
+### E1 - A `label` and a `description`
+
+optional 
+```json
+  "channels": [
+       { "id" : "channel-0",
+          "label": "H2A-mCherry nuclei",
+          "description": "nuclei stained with via the endogenous chromatin marker H2A-mCherry"
+       },
+       { "id" : "channel-1",
+          "label": "drl-GCamp6s",
+          "description": "Calcium concentration in mesodermal cells, imaged using GCamp6s expressed via genetic construct with regulatory elements of the draculin (drl) gene."
+        },
+      ]
+```
+
+### E2 - Only a `label` key
+
+```json
+  "channels": [
+       { "id" : "channel-0",
+          "label": "H2A-mCherry nuclei",
+       },
+       { "id" : "channel-1",
+          "label": "drl-GCamp6s",
+        },
+      ]
+```
+
+### E3 - Conflate the "id" and the "label" in a single element 
 
 
+```json
+  "channels": [
+       { "id" : "H2A-mCherry nuclei",
+       },
+       { "id" : "drl-GCamp6s",
+        "label": "",
+        },
+      ]
+```
+</details>
