@@ -45,9 +45,6 @@ allow `getChannelByName("x")` unambiguously for a single N-D array
 
 <details>
 
-### A0 - identity written in axis 
-(dropped due to scenario with no bound channels) 
-
 ### A1 - array matching identifiers by index
 
 ```json
