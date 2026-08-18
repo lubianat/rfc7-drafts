@@ -15,10 +15,15 @@ Other possible additions:
 * C - canonical RGB-in-3-channels representation
 * D - tags for channels (slugs or ontology terms)
 * E - free-text descriptions 
-* X - handle current `omero.channels` as a fallback default rendering 
-* X - channel grouping (m:n) via tags
-* X - handling unbound axis (implicit channel=1)
-* X - free-text descriptions 
+* F - advance discussion on the `omero.channels` block 
+* G - channel grouping (m:n) --> currently designed as part of D 
+* H - handling unbound axis (implicit channel=1)
+
+Probably out of scope
+
+* detailed acquisition metadata 
+* detailed biological metadata
+* detailed rendering metadata
 
 ## A - string identifiers for channels
 
@@ -104,7 +109,7 @@ where
 ```
 </details>
 
-## C - Photometry / RGB processing 
+## C - Photometric interpretation / RGB processing 
 
 allows for a canonical way of converting RGB images to OME-Zarr
 
@@ -282,3 +287,135 @@ optional
       ]
 ```
 </details>
+
+### F - advance discussion on the `omero.channels` block 
+
+unambiguously describe the relation of `channels` and `omero.channels` 
+
+non-goals: 
+ - a full rendering spec
+ - a backbone for a full rendering spec
+
+stretch goals: 
+ - a minimal joint rendering spec as a fallback (_not_ transitional, but semantically inferior in relation a future rendering spec)
+
+<details>
+
+### F1 - move `omero.channels` as it is, don't touch other `omero` keys
+
+`omero.channels` gets deprecated
+
+all `omero.channels` keys become valid `channels` keys
+
+```json
+  "omero": {
+           "id": 1,                             
+           "name": "example.tif",
+            }
+  "channels": [
+    {   "id": "channel-0", 
+        "active": true,
+        "color": "0000FF",
+        "inverted": false,
+        "label": "H2A-mCherry",
+        "window": {
+            "end": 1500,
+            "max": 65535,
+            "min": 0,
+            "start": 0
+        }
+    }
+      ]
+```
+
+### F2 - don't touch `omero.channels` 
+
+```json
+  "omero": {
+           "id": 1,                             
+           "name": "example.tif",
+            "channels": [
+                    {   "id": "channel-0", 
+                        "active": true,
+                        "color": "0000FF",
+                        "inverted": false,
+                        "label": "H2A-mCherry"
+                    }
+                ]
+            },
+  "channels": [
+    {   "id": "channel-0" },
+    {   "id": "channel-1"}
+]
+```
+### F3 - move `omero.channels` and apply changes to keys 
+
+`omero.channels` gets deprecated
+
+`omero.channels` keys are used only when necessary
+
+keys may be renamed for clarity 
+
+(example below out of many possible)
+
+```json
+  "omero": {
+           "id": 1,                             
+           "name": "example.tif",
+            }
+  "channels": [
+    {   "id": "channel-0", 
+        "color": "0000FF",
+        "inverted": false,
+        "label": "H2A-mCherry",
+        "value_limits": {
+                "min": 0,
+                "max": 1234
+           },
+        "contrast_limits": {
+               "start": 50,
+               "end": 1000
+           }
+    }
+      ]
+```
+
+</details>
+
+## G - grouping channels 
+
+(see ## D - Tagging with slugs and ontology terms) 
+
+## H - handling unbound axis (implicit channel=1)
+
+<details>
+  
+### H1 - implicit assume that if channel is not bound, channels[0] refers to it
+
+```json
+"channels": [
+       { "id" : "channel-x",}
+]
+```
+
+### H2 - `"unbound":"true"`
+
+```json
+"channels": [
+       { "id" : "channel-x",
+         "unbound": true        
+       }
+]
+```
+
+### H3 - explicit `"index": null`
+
+```json
+"channels": [
+       { "id" : "channel-x",
+         "index" : null        
+       }
+]
+```
+</details>
+
