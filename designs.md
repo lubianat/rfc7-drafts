@@ -8,10 +8,12 @@ Core:
 Other possible additions:
 
 * C - canonical RGB-in-3-channels representation
-* X - tags for channels (slugs or ontology terms) 
+* D - tags for channels (slugs or ontology terms) 
 * X - handle current `omero.channels` as a fallback default rendering 
 * X - channel grouping (m:n) via tags
 * X - handling unbound axis (implicit channel=1)
+* X - free-text descriptions 
+
 ## A - string identifiers for channels
 
 allow `getChannelByName("x")` unambiguously for a single N-D array
@@ -24,38 +26,27 @@ allow `getChannelByName("x")` unambiguously for a single N-D array
 ### A1 - array matching identifiers by index
 
 ```json
-{ "ome": 
-      { "multiscales": [...], 
-         "channels": {
-              "ids": [ "gfp", "dapi"], 
-      }
+"channels": {
+  "ids": [ "gfp", "dapi"]
 }
 ```
 
 ### A2 - array of objects, implicitly linked by index
 
 ```json
-{ "ome": 
-      { "multiscales": [...], 
-         "channels": [
-             { "id": "gfp"}, 
-             { "id": "dapi"}
-           ], 
-      }
-}
+"channels": [
+ { "id": "gfp"}, 
+ { "id": "dapi"}
+], 
 ```
 
 ### A3 - array of objects, explicitly adding indexes  
 
 ```json
-{ "ome": 
-      { "multiscales": [...], 
-         "channels": [
-             { "id": "gfp", "index": 0}, 
-             { "id": "dapi", "index": 1}
-           ], 
-      }
-}
+"channels": [
+ { "id": "gfp", "index": 0}, 
+ { "id": "dapi", "index": 1}
+], 
 ```
 </details>
 
@@ -115,25 +106,24 @@ allows for the RGB channels to co-exist with other (e.g. fluorescence) channels 
 
 max of 1 (R, G, B) 3-channel group per N-D image
 
+<details>
+
 ### C1 - An explicit "rgb" key + value "R", "G" or "B" 
 exactly 3 channels with rgb = oneOf("R", "G", "B")
 
 ```json
-{ "ome": 
-      { "multiscales": [...], 
-        "channels": [
-             { "id" : "channel-0",
-                "rgb": "R"
-             },
-             { "id" : "channel-1",
-                "rgb": "G"
-              },
-             { "id" : "channel-2",
-                "rgb": "B"
-              },
-            ]
-       }
-}
+"channels": [
+ { "id" : "channel-0",
+    "rgb": "R"
+ },
+ { "id" : "channel-1",
+    "rgb": "G"
+  },
+ { "id" : "channel-2",
+    "rgb": "B"
+  },
+]
+
 ```
 
 ### C2 - Reserved ids for RGB
@@ -141,18 +131,14 @@ exactly 3 channels with rgb = oneOf("R", "G", "B")
 0 or exactly 3 channels with id=oneOf(R,G,B) 
 
 ```json
-{ "ome": 
-      { "multiscales": [...], 
-        "channels": [
-             { "id" : "R",
-             },
-             { "id" : "G"
-              },
-             { "id" : "B",
-              },
-            ]
-       }
-}
+"channels": [
+ { "id" : "R",
+ },
+ { "id" : "G"
+  },
+ { "id" : "B",
+  },
+]
 ```
 
 ### C3 - Piggy-back on a `color` key + is_rgb = true
@@ -180,3 +166,68 @@ if present, colors MUST be encoding R=FF0000, G=00FF00, B=0000FF
        }
 }
 ```
+</details>
+
+## D - Tagging with slugs and ontology terms
+
+optional
+
+allow semantic identification of channels across multiple N-D images 
+
+allow semantic grouping of channels in the same N-D images
+
+allow search engine indexing of channel metadata
+
+<details>
+### D1 - Any string as a channel tag
+
+```json
+  "channels": [
+       { "id" : "channel-0",
+          "tags" : ["nuclei", "dapi"]
+       },
+       { "id" : "channel-1",
+          "tags" : ["endogenous-tag", "tp53-gfp" ]
+        },
+      ]
+```
+
+### D2 - Any string as tag + any ontology term as a curie
+
+curies SHOULD use bioregistry.io preferred prefixes
+
+curies and tags MAY be completely different
+
+```json
+  "channels": [
+       { "id" : "channel-0",
+          "tags" : ["dapi"]
+          "curies: ["GO:0005634"] 
+       },
+       { "id" : "channel-1",
+          "tags" : ["endogenous-tag", "tp53-gfp" ]
+        },
+      ]
+```
+
+### D3 - ontology small objects
+
+terms SHOULD use bioregistry.io preferred prefixes
+
+labels SHOULD be the canonical label for the term
+
+```json
+  "channels": [
+       { "id" : "channel-0",
+          "ontology_ids" : [{"code":"GO:0005634", "label":"nucleus"}, {"code":"CHEBI:51231", "label": "DAPI"}]
+
+       },
+       { "id" : "channel-1",
+         "ontology_ids": [{"code": "uniprot:P04637", "label":"TP53"}] 
+        },
+      ]
+```
+</details>
+
+
+
