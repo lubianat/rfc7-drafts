@@ -1,16 +1,30 @@
-Goals: 
+# How to read this 
 
-* Experiment with designs for the key parts of RFC 7
-* Blueprint for Architectural Decision Records
+This is a design document for `channels` metadata on OME-NGFF. 
 
-This uses [0.5](https://ngff.openmicroscopy.org/0.5/) as the base, but it can be rebased
+It lists design options for different features, providing a blueprint for decision making and Architectural Decision Records. 
 
-Core: 
+Each feature has a letter ("A") and each of the possible designs get a letter+number code ("A1"). 
+
+Examples use [0.5](https://ngff.openmicroscopy.org/0.5/) as a base, but should be interpreted as version-agnostic. 
+
+Any designs that are incompatible with OME-Zarr 1.0 (e.g. conflicting with other works in progress) are avoided. 
+If you find such design flaws, please let me know.
+
+you may contribute by: 
+
+* sharing which of the features you care the most about
+* providing arguments for and against particular designs
+* reporting design flaws
+* suggesting new features
+
+# Features
+## Core: 
 
 * A - string identifiers for channels
 * B - channels as an special case of axis-level metadata
 
-Other possible additions:
+## Other:
 
 * C - canonical RGB-in-3-channels representation
 * D - tags for channels (slugs or ontology terms)
@@ -19,7 +33,7 @@ Other possible additions:
 * G - channel grouping (m:n) --> currently designed as part of D 
 * H - handling unbound axis (implicit channel=1)
 
-Probably out of scope
+# Out of scope:
 
 * detailed acquisition metadata 
 * detailed biological metadata
