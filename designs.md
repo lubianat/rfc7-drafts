@@ -297,6 +297,7 @@ optional
         },
       ]
 ```
+
 </details>
 
 ### F - advance discussion on the `omero.channels` block 
@@ -429,4 +430,77 @@ keys may be renamed for clarity
 ]
 ```
 </details>
+
+
+## X1 - Extended Biological/Experimental Annotations 
+
+Provides a set of "core extensions" for annotating biological details on channels
+
+<details>
+  
+X1A - Keep it out of scope
+
+For the scope of this RFC, only allow biological metadata as extensions (e.g. using prefixes like `cellpainting:`, `dca:` as per current RFC8).
+
+e.g.
+```json
+"channels": [
+  { "id": "H2B_GFP",
+    "dca:channel_type": "fluorescence",
+    "dca:biological_annotation": {
+      "target": "nuclei",
+      "marker": "H2B-GFP",
+      "marker_type": "endogenous_tag",
+    }
+  }
+]
+```
+
+X1B - Add dedicated keys for `channel_type` and `biological_annotation` 
+
+Adopting in part fields of https://chanzuckerberg.github.io/dynamic-cell-atlas-specs/v0.2/channel-metadata.html#guidance-on-channel-type 
+
+```json
+"channels": [
+  { "id": "H2B_GFP",
+    "channel_type": "fluorescence",
+    "biological_annotation": {
+      "target": "nuclei",
+      "marker": "H2B-GFP",
+      "marker_type": "endogenous_tag",
+      "cellpainting:Label_Molecule": "DNA" \\ Example of extension with RFC 8 prefix
+    }
+  }
+]
+```
+
+X1C - Some other proposal ? 
+
+Some other way to conceptualize & organize biological metadata
+
+# Considerations in light of RFCs
+
+## RFC 3 (more dimensions)
+
+If more dimensions are allowed, some of them potentially discrete/similar to channels, it would be beneficial to adopt a design applicable to other axis. 
+
+The risk is to "optimize early" and add complexity that is not used (similar to the ["multiscales"/"multiscale" decision](https://ngff.openmicroscopy.org/rfc/6/index.html) in the past).
+
+## RFC 8 (`Reference` mechanism) 
+
+As per current version, 2026-08-24. 
+
+RFC-8 supplies `id` (matching `[a-zA-Z0-9-_.]+`, unique per document) and the `Reference` interface (`{"id": ..., "path": {...}}`).
+
+Adopting it for channels makes them referenceable across files. It also provides `name`, which would play the role of a `label`, but with the additional uniqueness constraint.
+
+The `channels` field could be an attribute key on a `Multiscale` node in a post-RFC-8 layout.
+
+Rendering metadata may live at collection-level attributes. That is not decided here, but the slot exists.
+
+## RFC 8 (Extensions)
+
+The channel metadata must be compatible with whatever extensibility scheme used for OME-Zarr, potentially with commonly-agreed upon fields added to the core.  
+
+
 
