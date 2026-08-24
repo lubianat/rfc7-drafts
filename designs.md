@@ -182,7 +182,7 @@ if present, colors MUST be encoding R=FF0000, G=00FF00, B=0000FF
               },
              { "id" : "channel-2",
                 "is_rgb" : "true",
-                "rgb": ""#0000FF"
+                "rgb": "#0000FF"
               },
             ]
        }
