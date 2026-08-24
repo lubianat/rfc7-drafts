@@ -389,8 +389,8 @@ Adopting in part fields of https://chanzuckerberg.github.io/dynamic-cell-atlas-s
 
 Some other way to conceptualize & organize biological metadata
 
-</details>
-<details>
+</details
+  
 ## X2 - Acquisition metadata via the OME Model
 
 Provide basic standard metadata in JSON format following the `Channel` specification of OME.
@@ -462,7 +462,7 @@ If not _all_, other names should be added via extension to allow OME-XML convers
 An external mechanism that ports the full OME metadata in a way compatible with the OME-Zarr ecosystem. 
 
 </details>
-<details>
+
 ## X3 - Advance discussion on the `omero.channels` block / minimal rendering fallback 
 
 unambiguously describe the relation of `channels` and `omero.channels` 
@@ -557,7 +557,8 @@ keys may be renamed for clarity
 ```
 
 </details>
-# Considerations in light of RFCs
+
+# Considerations in light of current  RFCs
 
 ## RFC 3 (more dimensions)
 
