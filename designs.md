@@ -29,15 +29,18 @@ you may contribute by:
 * C - canonical RGB-in-3-channels representation
 * D - tags for channels (slugs or ontology terms)
 * E - free-text descriptions 
-* F - advance discussion on the `omero.channels` block 
-* G - channel grouping (m:n) --> currently designed as part of D 
-* H - handling unbound axis (implicit channel=1)
+* F - channel grouping (m:n) --> currently designed as part of D 
+* G - handling unbound axis (implicit channel=1)
 
-# Out of scope:
+* X1 - Basic Biological/Experimental Annotations 
+* X2 - Acquisition metadata via the OME Model
+* X3 - Advance discussion on the `omero.channels` block / minimal rendering fallback 
 
-* detailed acquisition metadata 
-* detailed biological metadata
-* detailed rendering metadata
+## Out f scope 
+
+* detailed rendering metadata (views / collections; larger than channels)
+* study/experiment-level biometadata (sample preparation, organisms; larger than channels)
+* instrument-level acquisition metadata (microscope model, camera settings; larger than channels)
 
 ## A - string identifiers for channels
 
@@ -300,7 +303,164 @@ optional
 
 </details>
 
-### F - advance discussion on the `omero.channels` block 
+
+## F - grouping channels 
+
+(see ## D - Tagging with slugs and ontology terms) 
+
+## G - handling unbound axis (implicit channel=1)
+
+<details>
+  
+### G1 - implicit assume that if channel is not bound, channels[0] refers to it
+
+```json
+"channels": [
+       { "id" : "channel-x",}
+]
+```
+
+### G2 - `"unbound":"true"`
+
+```json
+"channels": [
+       { "id" : "channel-x",
+         "unbound": true        
+       }
+]
+```
+
+### G3 - explicit `"index": null`
+
+```json
+"channels": [
+       { "id" : "channel-x",
+         "index" : null        
+       }
+]
+```
+</details>
+
+
+## X1 - Extended Biological/Experimental Annotations 
+
+Provides a set of "core extensions" for annotating biological details on channels
+
+<details>
+  
+### X1A - Keep it out of scope
+
+For the scope of this RFC, only allow biological metadata as extensions (e.g. using prefixes like `cellpainting:`, `dca:` as per current RFC8).
+
+Potentially encourage DCA to formalize its extension in a reusable way. 
+e.g.
+```json
+"channels": [
+  { "id": "H2B_GFP",
+    "dca:channel_type": "fluorescence",
+    "dca:biological_annotation": {
+      "target": "nuclei",
+      "marker": "H2B-GFP",
+      "marker_type": "endogenous_tag",
+    }
+  }
+]
+```
+
+### X1B - Add dedicated keys for `channel_type` and `biological_annotation` 
+
+Adopting in part fields of https://chanzuckerberg.github.io/dynamic-cell-atlas-specs/v0.2/channel-metadata.html#guidance-on-channel-type 
+
+```json
+"channels": [
+  { "id": "H2B_GFP",
+    "channel_type": "fluorescence",
+    "biological_annotation": {
+      "target": "nuclei",
+      "marker": "H2B-GFP",
+      "marker_type": "endogenous_tag",
+      "cellpainting:Label_Molecule": "DNA" \\ Example of extension with RFC 8 prefix
+    }
+  }
+]
+```
+
+### X1C - Some other proposal ? 
+
+Some other way to conceptualize & organize biological metadata
+
+## X2 - Acquisition metadata via the OME Model
+
+Provide basic standard metadata in JSON format following the `Channel` specification of OME.
+
+The direct use by client software of OME.METADATA.XML becomes NOT RECOMMENDED for these fields. 
+
+Writers opting for writing a sidecar OME.METADATA.XML SHOULD duplicate the channel metadata in both. 
+
+<details>
+  
+### X2A - Reuse (some/all) names in the OME model in the flat channel namespace 
+
+If not _all_, other names should be added via extension to allow OME-XML conversion back and forth 
+
+```json
+"channels": [
+  {
+    "id": "channel-0",
+    "name": "H2A-mCherry",
+    "acquisition_mode": "SpinningDiskConfocal",
+    "contrast_method": "Fluorescence",
+    "illumination_type": "Epifluorescence",
+    "excitation_wavelength": 561,
+    "excitation_wavelength_unit": "nm",
+    "emission_wavelength": 610,
+    "emission_wavelength_unit": "nm",
+    "samples_per_pixel": 1,
+    "pinhole_size": 50,
+    "pinhole_size_unit": "µm",
+    "nd_filter": 0.5,
+    "color": "0000FF"
+    "biological_annotation": { "...": "see I" }
+  }
+]
+```
+
+### X2B - Add the OME model keys under a `ome_model` key 
+
+(or other dedicated key)
+
+```json
+"channels": [
+  {
+    "id": "channel-0",
+    "name": "H2A-mCherry",
+    "ome_model": {
+      "fluor": "mCherry", // Kept for backwards compatibility
+      "acquisition_mode": "SpinningDiskConfocal",
+      "contrast_method": "Fluorescence",
+      "illumination_type": "Epifluorescence",
+      "excitation_wavelength": 561,
+      "excitation_wavelength_unit": "nm",
+      "emission_wavelength": 610,
+      "emission_wavelength_unit": "nm",
+      "samples_per_pixel": 1,
+      "pinhole_size": 50,
+      "pinhole_size_unit": "µm",
+      "nd_filter": 0.5,
+      "pockel_cell_setting": 0,
+      "color": "0000FF"  // Kept for backwards compatibility
+    },
+    "biological_annotation": { "...": "see I" }
+  }
+]
+```
+
+### x2C - An independent RFC for adoption of the whole OME model as JSON 
+
+An external mechanism that ports the full OME metadata in a way compatible with the OME-Zarr ecosystem. 
+
+
+## X3 - Advance discussion on the `omero.channels` block / minimal rendering fallback 
 
 unambiguously describe the relation of `channels` and `omero.channels` 
 
@@ -313,7 +473,7 @@ stretch goals:
 
 <details>
 
-### F1 - move `omero.channels` as it is, don't touch other `omero` keys
+### X3A - move `omero.channels` as it is, don't touch other `omero` keys
 
 `omero.channels` gets deprecated
 
@@ -340,7 +500,7 @@ all `omero.channels` keys become valid `channels` keys
       ]
 ```
 
-### F2 - don't touch `omero.channels` 
+### X3B - don't touch `omero.channels` 
 
 ```json
   "omero": {
@@ -360,7 +520,8 @@ all `omero.channels` keys become valid `channels` keys
     {   "id": "channel-1"}
 ]
 ```
-### F3 - move `omero.channels` and apply changes to keys 
+
+### X3C - move `omero.channels` and apply changes to keys 
 
 `omero.channels` gets deprecated
 
@@ -393,91 +554,6 @@ keys may be renamed for clarity
 ```
 
 </details>
-
-## G - grouping channels 
-
-(see ## D - Tagging with slugs and ontology terms) 
-
-## H - handling unbound axis (implicit channel=1)
-
-<details>
-  
-### H1 - implicit assume that if channel is not bound, channels[0] refers to it
-
-```json
-"channels": [
-       { "id" : "channel-x",}
-]
-```
-
-### H2 - `"unbound":"true"`
-
-```json
-"channels": [
-       { "id" : "channel-x",
-         "unbound": true        
-       }
-]
-```
-
-### H3 - explicit `"index": null`
-
-```json
-"channels": [
-       { "id" : "channel-x",
-         "index" : null        
-       }
-]
-```
-</details>
-
-
-## X1 - Extended Biological/Experimental Annotations 
-
-Provides a set of "core extensions" for annotating biological details on channels
-
-<details>
-  
-X1A - Keep it out of scope
-
-For the scope of this RFC, only allow biological metadata as extensions (e.g. using prefixes like `cellpainting:`, `dca:` as per current RFC8).
-
-e.g.
-```json
-"channels": [
-  { "id": "H2B_GFP",
-    "dca:channel_type": "fluorescence",
-    "dca:biological_annotation": {
-      "target": "nuclei",
-      "marker": "H2B-GFP",
-      "marker_type": "endogenous_tag",
-    }
-  }
-]
-```
-
-X1B - Add dedicated keys for `channel_type` and `biological_annotation` 
-
-Adopting in part fields of https://chanzuckerberg.github.io/dynamic-cell-atlas-specs/v0.2/channel-metadata.html#guidance-on-channel-type 
-
-```json
-"channels": [
-  { "id": "H2B_GFP",
-    "channel_type": "fluorescence",
-    "biological_annotation": {
-      "target": "nuclei",
-      "marker": "H2B-GFP",
-      "marker_type": "endogenous_tag",
-      "cellpainting:Label_Molecule": "DNA" \\ Example of extension with RFC 8 prefix
-    }
-  }
-]
-```
-
-X1C - Some other proposal ? 
-
-Some other way to conceptualize & organize biological metadata
-
 # Considerations in light of RFCs
 
 ## RFC 3 (more dimensions)
